@@ -60,6 +60,7 @@ export default app;
 ```
 
 /path/to/file/wrangler.jsonc
+---------------------
 ```jsonc
 {
   // ... other wrangler configuration
