@@ -1,0 +1,77 @@
+## Worker
+* always prefer to use hono
+
+### Assets
+* always use vite to build to `dist`
+* assets should always be served out of `dist`
+* the catch all route should have assets as the last thing it serves
+
+## Using Cloudflare
+All non hono routes or other cloudflare specific functions in typescript should use the following pattern
+
+/path/to/file/example-using-r2.ts
+---------------------
+
+```typescript
+// This file is an example file of some r2 related functions
+import { R2Bucket } from "@cloudflare/workers-types";
+
+// There should always be an `Env` type defined in the file that
+// uses cloudflare bindings
+type MyR2ExampleEnv = {
+    // the names here should be a 1:1 naming to what is in the main worker Env object
+    R2: R2Bucket
+}
+
+// all exported function's first argument should be the env if they interact
+// with r2 (or any other cloudflare binding)
+export async function some_operation(env: MyR2ExampleEnv): Promise<...> {
+}
+```
+
+/path/to/file/main-worker.ts
+---------------------
+```typescript
+import { Hono } from 'hono';
+import { serveStatic } from 'hono/cloudflare-workers';
+import { R2Bucket } from '@cloudflare/workers-types';
+import type { D1Database } from '@cloudflare/workers-types';
+import type { KVNamespace } from '@cloudflare/workers-types';
+import { some_operation } from "./example-using-r2"
+
+// Top-level Env type for the main worker
+type Env = {
+  R2: R2Bucket;
+  // ... other bindings
+};
+
+const app = new Hono<{ Bindings: Env }>();
+app.get('/api/example', async (c) => {
+  const env = c.env;
+  await some_operation(env)
+  // other operations or business logic here
+  return c.json({ message: 'Hello' });
+});
+
+// Serve static assets from dist (catch-all should be last)
+app.get('*', serveStatic({ root: './dist' }));
+
+export default app;
+```
+
+/path/to/file/wrangler.jsonc
+```jsonc
+{
+  // ... other wrangler configuration
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "my-bucket",
+      "preview_bucket_name": "my-bucket-preview"
+    }
+  ],
+  // ... other wrangler configuration
+}
+```
+
+This pattern applies to D1 or any other BINDING in cloudflare
