@@ -75,10 +75,20 @@ export default app;
 }
 ```
 
-This pattern applies to D1 or any other BINDING in cloudflare
+## Functions That Use Cloudflare
+Every function that you create that uses cloudflare should have a first
+parameter called `env` of interface `<Object>Env` (usually named after file, or object type)
 
-This pattern applies to DurableObjects.
+```typescript
+// in file matchmaking.ts
+export async function get_game(env: MatchMakingEnv): Promise<...> {
+  ...
+}
+```
 
+This pattern of env applies to all cloudflare bindings such as D1, R2, Containers, Workers, etc etc
+
+### Example using Containers and Durable Objects
 Creating a container requires getContainer and an Env object that is defined
 with the container name
 
