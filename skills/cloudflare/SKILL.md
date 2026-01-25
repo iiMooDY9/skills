@@ -75,7 +75,7 @@ export default app;
 }
 ```
 
-## Functions That Use Cloudflare
+### Functions That Use Cloudflare
 Every function that you create that uses cloudflare should have a first
 parameter called `env` of interface `<Object>Env` (usually named after file, or object type)
 
@@ -118,3 +118,15 @@ interface Env {
   GAME: DurableObjectNamespace<GameContainer>,
 }
 ```
+
+### Env object
+When creating env interfaces, never import within it `import("...")`, always
+import above the interface if you are creating an interface, such as the following:
+
+```typescript
+import { DOContainer } from "./path/to/container";
+interface MatchMakingEnv = {
+    DO_NAME: DurableObjectNamespace<DOContainer>
+}
+```
+
