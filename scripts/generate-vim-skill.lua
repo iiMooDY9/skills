@@ -8,8 +8,7 @@ local remove_all_comments = function(text)
   for _, line in ipairs(lines) do
     line = vim.trim(line)
     local is_comment = vim.startswith(line, "--")
-    local is_annotation = vim.startswith(line, "---")
-    if (not is_comment or is_annotation) and not vim.startswith(line, "error") and line ~= "" then
+    if not is_comment and not vim.startswith(line, "error") and line ~= "" then
       table.insert(result, line)
     end
   end
@@ -35,7 +34,7 @@ local metas = {
     name = "api.lua",
     description = "The following are type stubs for all the functions available on `vim.api.*`. "
       .. "Prefer these functions where possible.",
-    process = { remove_all_comments, remove_function_and_end },
+    process = { remove_function_and_end },
   },
   {
     name = "builtin.lua",
@@ -56,7 +55,7 @@ local metas = {
   {
     name = "vimfn.lua",
     description = "Functions available from Neovim's vimscript APIs. They are available via `vim.fn.*`.",
-    process = { remove_all_comments, remove_function_and_end },
+    process = { remove_function_and_end },
   },
 }
 
@@ -78,6 +77,7 @@ for _, meta in ipairs(metas) do
     end
 
     local text = table.concat(lines, "\n")
+    text = remove_all_comments(text)
     if meta.process then
       for _, fn in ipairs(meta.process) do
         text = fn(text)

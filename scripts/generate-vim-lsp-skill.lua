@@ -1,86 +1,66 @@
--- Script to generate vim.lsp.md skill file for LLMs
--- Run with: nvim --headless -l ~/.behaviors/scripts/generate-vim-lsp-skill.lua
+local normalize_line = function(line)
+  return line:gsub("^%s+", ""):gsub("%s+$", ""):gsub("%s+", " ")
+end
 
-local remove_comments = function(text)
+local extract_function_definitions = function(text)
   local lines = vim.split(text, "\n")
-
   local result = {}
+  local seen = {}
+
   for _, line in ipairs(lines) do
-    local trimmed = vim.trim(line)
-
-    -- Remove ALL comments (anything starting with --)
-    -- Also remove error() calls, empty lines, local X = {} declarations
-    local is_comment = vim.startswith(trimmed, "--")
-    local is_error_call = vim.startswith(trimmed, "error")
-    local is_local_table = trimmed:match("^local %w+ = {}")
-
-    local should_remove = is_comment or is_error_call or is_local_table or trimmed == ""
-
-    if not should_remove then
-      table.insert(result, trimmed)
+    for tag in line:gmatch("%*([^%*]+)%*") do
+      if tag:match("^vim%.lsp[%w_%.:]*%b()") then
+        local signature = normalize_line(tag)
+        if not seen[signature] then
+          seen[signature] = true
+          table.insert(result, signature)
+        end
+      end
     end
   end
 
   return table.concat(result, "\n")
 end
 
--- LSP meta files that contain type stubs
-local metas = {
-  {
-    name = "protocol.lua",
-    path = "lua/vim/lsp/_meta/protocol.lua",
-    description = "LSP protocol types and structures used by Neovim's LSP client.",
-  },
-}
-
 local read = {}
 
--- Add header
 table.insert(read, "# Neovim LSP API Reference")
 table.insert(read, "")
-table.insert(read, "This document contains type stubs and API references for Neovim's LSP Lua API.")
+table.insert(read, "This document contains function definitions from Neovim's LSP help docs.")
 table.insert(read, "Use this as a reference when working with LSP in Neovim Lua.")
 table.insert(read, "")
+table.insert(read, "---")
+table.insert(read, "")
+table.insert(read, "## lsp")
+table.insert(read, "")
+table.insert(read, "Functions extracted from `lsp.txt`.")
+table.insert(read, "")
+table.insert(read, "```lua")
 
--- Process meta files (type stubs)
-for _, meta in ipairs(metas) do
-  local file = vim.api.nvim_get_runtime_file(meta.path, false)[1]
-  if file then
-    local lines = vim.fn.readfile(file)
-    local text = table.concat(lines, "\n")
-    text = remove_comments(text)
-
-    table.insert(read, "---")
-    table.insert(read, "")
-    table.insert(read, "## " .. meta.name:gsub("%.lua$", ""))
-    table.insert(read, "")
-    table.insert(read, meta.description)
-    table.insert(read, "")
-    table.insert(read, "```lua")
-    table.insert(read, text)
-    table.insert(read, "```")
-    table.insert(read, "")
-  else
-    io.stderr:write("Warning: Could not find " .. meta.path .. "\n")
-  end
+local file = vim.api.nvim_get_runtime_file("doc/lsp.txt", false)[1]
+if file then
+  local lines = vim.fn.readfile(file)
+  local text = table.concat(lines, "\n")
+  text = extract_function_definitions(text)
+  table.insert(read, text)
+else
+  io.stderr:write("Warning: Could not find doc/lsp.txt\n")
 end
 
+table.insert(read, "```")
+table.insert(read, "")
+
 local result = table.concat(read, "\n")
-
--- Get output path from args or use default
 local output_path = arg[1] or (os.getenv("HOME") .. "/.behaviors/vim.lsp.md")
-
--- Ensure directory exists
 local dir = output_path:match("(.*/)")
 if dir then
   os.execute("mkdir -p " .. dir)
 end
 
--- Write to file
-local file = io.open(output_path, "w")
-if file then
-  file:write(result)
-  file:close()
+local output_file = io.open(output_path, "w")
+if output_file then
+  output_file:write(result)
+  output_file:close()
   print("Generated: " .. output_path)
 else
   io.stderr:write("Error: Could not write to " .. output_path .. "\n")
