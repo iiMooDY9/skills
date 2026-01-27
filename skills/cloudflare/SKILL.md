@@ -120,7 +120,8 @@ interface Env {
 ```
 
 ### Env object
-When creating env interfaces, never import within it `import("...")`, always
+* always search for the main `Env` (usually defined in the main worker file). Use the same interface field names/values when creating sub env
+* When creating env interfaces, never import within it `import("...")`, always
 import above the interface if you are creating an interface, such as the following:
 
 ```typescript
