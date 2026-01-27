@@ -7,10 +7,56 @@ local extract_function_definitions = function(text)
   local result = {}
   local seen = {}
 
-  for _, line in ipairs(lines) do
+  local function scrub_signature(signature)
+    signature = signature:gsub("[`|]", "")
+    signature = signature:gsub("%s+$", "")
+    signature = signature:gsub("%s+", " ")
+    return signature
+  end
+
+  local function args_from_line(line)
+    local normalized = normalize_line(line)
+    local args = normalized:match("%b()")
+    return args
+  end
+
+  local function combine_signature(tag_value, args)
+    local base = tag_value:gsub("%b()", "")
+    local params = args or "()"
+    return scrub_signature(base .. params)
+  end
+
+  local function base_name(tag_value)
+    local name = tag_value:gsub("%b()", "")
+    return name:match("([^%.:]+)$")
+  end
+
+  local function find_args_nearby(start_index, short_name)
+    local max_index = math.min(start_index + 3, #lines)
+    for i = start_index, max_index do
+      local line = normalize_line(lines[i])
+      local args = line:match("^" .. short_name .. "%s*(%b())")
+      if args then
+        return args
+      end
+    end
+    return nil
+  end
+
+  for index, line in ipairs(lines) do
     for tag in line:gmatch("%*([^%*]+)%*") do
       if tag:match("^vim%.lsp[%w_%.:]*%b()") then
-        local signature = normalize_line(tag)
+        local args = args_from_line(line)
+        if args == "()" then
+          args = nil
+        end
+        if not args then
+          local short_name = base_name(tag)
+          if short_name then
+            args = find_args_nearby(index + 1, short_name)
+          end
+        end
+        local signature = combine_signature(tag, args)
         if not seen[signature] then
           seen[signature] = true
           table.insert(result, signature)
