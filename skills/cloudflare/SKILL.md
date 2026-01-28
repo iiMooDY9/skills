@@ -93,6 +93,8 @@ Here is an example of creating a d1 entry for the user.  Notice i include the co
 }
 ```
 
+📣 Remember to rerun 'wrangler types' after you change your wrangler.jsonc file.
+
 ### Functions That Use Cloudflare
 Every function that you create that uses cloudflare should have a first
 parameter called `env` of interface `<Object>Env` (usually named after file, or object type)
